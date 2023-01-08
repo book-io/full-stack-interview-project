@@ -5,8 +5,8 @@
 
 0. ~~Create issue tracker~~
 1. ~~Install reqwest~~
-2. Create endpoints helper
-3. Create lib for constants
+2. ~~Create endpoints helper~~
+3. ~~Create lib for constants~~
 4. Implement first Tango client fn
 5. Implement Tango Client
 6. 
