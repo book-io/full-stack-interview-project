@@ -2,6 +2,9 @@ use std::{collections::HashSet, future::Future};
 
 use serde::de::DeserializeOwned;
 
+use crate::cardano::tango::endpoints::{add_cursor_to_url, generate_get_all_addresses_endpoint};
+use crate::cardano::tango::lib::TANGO_API_KEY_HEADER;
+use crate::cardano::tango::model::Address;
 use crate::cardano::{api::CardanoApi, model::Asset};
 
 use super::model::ApiListRes;
@@ -63,7 +66,39 @@ impl CardanoApi for TangoClient {
     // recommended api:
     // https://www.tangocrypto.com/api-reference/#/operations/list-stake_address-addresses
     async fn get_all_addresses(&self, stake_address: &str) -> anyhow::Result<Vec<String>> {
-        todo!()
+        let url = generate_get_all_addresses_endpoint(&self.base_url, &self.app_id, stake_address);
+        let api_key = &self.api_key;
+
+        async fn get_addresses(
+            url: &str,
+            api_key: &str,
+            cursor: Option<String>,
+        ) -> anyhow::Result<ApiListRes<Address>> {
+            let full_url = if cursor.is_some() {
+                add_cursor_to_url(url, &cursor.unwrap())
+            } else {
+                url.to_string()
+            };
+
+            let res = reqwest::Client::new()
+                .get(full_url)
+                .header(TANGO_API_KEY_HEADER, api_key)
+                .send()
+                .await?
+                .json()
+                .await?;
+
+            Ok(res)
+        }
+
+        let response: Vec<Address> = get_all(|cursor| get_addresses(&url, api_key, cursor)).await?;
+
+        let addresses: Vec<String> = response
+            .into_iter()
+            .map(|address| address.address)
+            .collect();
+
+        Ok(addresses)
     }
 
     // recommended api:
