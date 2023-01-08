@@ -2,9 +2,12 @@ use std::{collections::HashSet, future::Future};
 
 use serde::de::DeserializeOwned;
 
-use crate::cardano::tango::endpoints::{add_cursor_to_url, generate_get_all_addresses_endpoint};
+use crate::cardano::tango::endpoints::{
+    add_cursor_to_url, generate_get_all_addresses_for_asset_endpoint,
+    generate_get_all_addresses_for_stake_address_endpoint, generate_get_all_assets_endpoint,
+};
 use crate::cardano::tango::lib::TANGO_API_KEY_HEADER;
-use crate::cardano::tango::model::Address;
+use crate::cardano::tango::model::{Address, AddressAsset, AssetAddress};
 use crate::cardano::{api::CardanoApi, model::Asset};
 
 use super::model::ApiListRes;
@@ -93,7 +96,11 @@ impl CardanoApi for TangoClient {
     // recommended api:
     // https://www.tangocrypto.com/api-reference/#/operations/list-stake_address-addresses
     async fn get_all_addresses(&self, stake_address: &str) -> anyhow::Result<Vec<String>> {
-        let url = generate_get_all_addresses_endpoint(&self.base_url, &self.app_id, stake_address);
+        let url = generate_get_all_addresses_for_stake_address_endpoint(
+            &self.base_url,
+            &self.app_id,
+            stake_address,
+        );
         let api_key = &self.api_key;
 
         let response: Vec<Address> =
@@ -101,7 +108,7 @@ impl CardanoApi for TangoClient {
 
         let addresses: Vec<String> = response
             .into_iter()
-            .map(|address| address.address)
+            .map(|Address { address }| address)
             .collect();
 
         Ok(addresses)
@@ -110,12 +117,46 @@ impl CardanoApi for TangoClient {
     // recommended api:
     // https://www.tangocrypto.com/api-reference/#/operations/list-address-assets
     async fn get_address_assets(&self, address: &str) -> anyhow::Result<Vec<Asset>> {
-        todo!()
+        let url = generate_get_all_assets_endpoint(&self.base_url, &self.app_id, address);
+        let api_key = &self.api_key;
+
+        let response: Vec<AddressAsset> =
+            get_all(|cursor| get_collection_from_tango(&url, api_key, cursor)).await?;
+
+        let assets: Vec<Asset> = response
+            .into_iter()
+            .map(
+                |AddressAsset {
+                     policy_id,
+                     asset_name,
+                     quantity,
+                     ..
+                 }| Asset {
+                    policy_id,
+                    asset_name,
+                    quantity,
+                },
+            )
+            .collect();
+
+        Ok(assets)
     }
 
     // recommended api:
     // https://www.tangocrypto.com/api-reference/#/operations/list-asset-addresses
     async fn get_asset_addresses(&self, asset_id: &str) -> anyhow::Result<HashSet<String>> {
-        todo!()
+        let url =
+            generate_get_all_addresses_for_asset_endpoint(&self.base_url, &self.app_id, asset_id);
+        let api_key = &self.api_key;
+
+        let response: Vec<AssetAddress> =
+            get_all(|cursor| get_collection_from_tango(&url, api_key, cursor)).await?;
+
+        let addresses: HashSet<String> = response
+            .into_iter()
+            .map(|AssetAddress { address, .. }| address)
+            .collect();
+
+        Ok(addresses)
     }
 }
