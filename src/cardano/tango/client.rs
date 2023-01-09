@@ -64,8 +64,10 @@ where
     Ok(data)
 }
 
-/// Helper method that abstracts calls to Tango Crypto for an arbitrary url,
-/// which can optionally have a cursor appended
+/**
+ * Helper method that abstracts calls to Tango Crypto for an arbitrary url,
+ * which can optionally have a cursor appended
+ */
 async fn get_collection_from_tango<T>(
     url: &str,
     api_key: &str,
