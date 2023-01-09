@@ -10,3 +10,4 @@
 4. ~~Implement first Tango client fn~~
 5. ~~Implement Tango Client~~
 6. Implement Bookshelf
+7. Add address helper to see if address_belongs_to_stake_address
