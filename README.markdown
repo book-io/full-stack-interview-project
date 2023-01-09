@@ -11,7 +11,7 @@ We need to create a simple Rust program to list the books available for a given 
 1. Create a free account at https://www.tangocrypto.com/.
 1. Copy `.env.dist` to `.env`.
 1. Create a testnet app and copy your `APP_ID` and `API_KEY` into `.env`.
-1. Implement the `CardanoApi` trait for `TangoClient` in [src/cardano/tango.rs](src/cardano/tango/client.rs).
+1. Implement the `CardanoApi` trait for `TangoClient` in [src/cardano/tango/client.rs](src/cardano/tango/client.rs).
 1. Implement the `Bookshelf` functionality in [src/model/bookshelf.rs](src/model/bookshelf.rs).
 
 **IMPORTANT**: Please do not modify any code in [main.rs](src/main.rs). You can add dependencies to [Cargo.toml](Cargo.toml), add structs and functions in the [cardano](src/cardano) module, [tango](src/cardano/tango) module, and can add (but not remove) functions to the [CardanoApi](src/cardano/api.rs) trait if you wish.
