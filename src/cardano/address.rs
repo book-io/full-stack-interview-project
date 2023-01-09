@@ -17,3 +17,12 @@ pub fn get_address_stake_key(
         None => Ok(None),
     }
 }
+
+/**
+ * Returns if an address corresponds to a stake address
+ */
+pub fn address_belongs_to_stake_address(address: &str, stake_address: &str) -> bool {
+    let address_option = get_address_stake_key(address).unwrap();
+
+    address_option.is_some() && (address_option.unwrap() == stake_address)
+}
