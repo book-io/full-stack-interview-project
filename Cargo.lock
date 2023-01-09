@@ -453,6 +453,7 @@ dependencies = [
  "async-trait",
  "cardano-serialization-lib",
  "dotenv",
+ "hex",
  "reqwest",
  "serde",
  "serde_json",
